@@ -19,6 +19,10 @@ Thumbs.db
 dist/
 build/
 
+# Local planning docs
+tech_stack_plan.md
+AWS_learning_plan.md
+
 # Optional: editor settings
 .vscode/
 .idea/
