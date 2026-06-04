@@ -1,5 +1,7 @@
 import RagRepo from '../repositories/RagRepo.js';
 import EmbeddingService from './EmbeddingService.js';
+import { parse } from 'csv-parse';
+import { createReadStream } from 'fs';
 
 async function embeddingService(body) {
     // exctract all the items from the body
@@ -43,4 +45,35 @@ async function SearchService(body) {
     return response;
 }
 
-export default { embeddingService, SearchService };
+async function csvUploadService(filePath) {
+    const records = []; // to store the records
+    try {
+        // create a read stream from the file
+        const parser = createReadStream(filePath).pipe(parse({ columns: true }));
+        // parse the file
+        for await (const record of parser) {
+            records.push(record);
+        }
+    } catch (err) {
+        // throw an error
+        const error = new Error(`Error uploading CSV file: ${err.message}`);
+        error.statusCode = err.statusCode || 500;
+        throw error;
+    }
+    // loop through each record and embed the content
+    for (const record of records) {
+        try {   
+            // send this record to the already existing embeddingService function
+            await embeddingService(record);
+        } catch (err) {
+            // throw an error
+            const error = new Error(`Error embedding CSV record: ${err.message}`);
+            error.statusCode = err.statusCode || 500;
+            throw error;
+        }
+    }   
+    // return the number of records
+    return records.length;
+}
+
+export default { embeddingService, SearchService, csvUploadService };

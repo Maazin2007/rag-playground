@@ -7,9 +7,17 @@ try {
     const result = await pool.query("SELECT NOW()");
     console.log(`✅ Connected to the database at ${result.rows[0].now} ✅`);
     // start the server
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         // log the server is running
         console.log(`Server is running on http://localhost:${PORT} ✅`);
+    });
+    // close the server when the process is terminated
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM signal received: closing HTTP server');
+        server.close(() => {
+          console.log('HTTP server closed');
+          process.exit(0);
+        });
     });
 } catch (err) {
     // if the connection is unsuccessful, log an error and exit the process
@@ -17,3 +25,4 @@ try {
     // exit the process with a status code of 1
     process.exit(1);
 }
+

@@ -17,5 +17,6 @@ async function relevantChunks(contentEmbedded) {
     return result.rows;
 }
 
+// function to upload the csv file
 export default { createChunk, relevantChunks };
 
